@@ -39,6 +39,7 @@
     function init() {
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera();
+
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.xr.enabled = true;
@@ -89,6 +90,7 @@
       });
     }
 
+    // ✅ Exponer la función al ámbito global para que funcione el onclick
     window.addModel = function(url) {
       loader.load(url, function (gltf) {
         const model = gltf.scene;
