@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirección AR</title>
+    <script>
+      window.onload = function () {
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        const params = new URLSearchParams(window.location.search);
+        const modelo = params.get("modelo") || "";
+
+        if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+          // Redirigir a visor iOS
+          window.location.href = `webar-ios/index.html?modelo=${modelo}`;
+        } else {
+          // Redirigir a visor Android/WebXR
+          window.location.href = `webar-android/index.html?modelo=${modelo}`;
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <p>Redireccionando al visor de Realidad Aumentada...</p>
+  </body>
+</html>

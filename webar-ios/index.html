@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Visor AR Multiproducto</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      font-family: sans-serif;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      --poster-color: transparent;
+    }
+
+    .botones {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      background: rgba(255,255,255,0.9);
+      padding: 8px;
+      border-radius: 10px;
+    }
+
+    button {
+      font-size: 0.9rem;
+      padding: 8px 12px;
+    }
+  </style>
+</head>
+<body>
+
+<model-viewer
+  id="visor"
+  src="model1.glb"
+  ios-src="model1.usdz"
+  ar
+  ar-modes="quick-look scene-viewer webxr"
+  auto-rotate
+  camera-controls
+  alt="Modelo 3D en RA"
+>
+  <button slot="ar-button">📱 Ver en tu espacio</button>
+</model-viewer>
+
+<div class="botones">
+  <button onclick="cambiarModelo(1)">Modelo 1</button>
+  <button onclick="cambiarModelo(2)">Modelo 2</button>
+  <button onclick="cambiarModelo(3)">Modelo 3</button>
+</div>
+
+<script>
+function cambiarModelo(n) {
+  const visor = document.getElementById('visor');
+  visor.setAttribute('src', `model${n}.glb`);
+  visor.setAttribute('ios-src', `model${n}.usdz`);
+}
+</script>
+
+</body>
+</html>

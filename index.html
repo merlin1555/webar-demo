@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WebAR Múltiples Objetos</title>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: sans-serif; }
+    #menu {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px;
+      z-index: 1;
+    }
+    button { padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <div id="menu">
+    <button onclick="addModel('model1.glb')">Agregar Modelo 1</button>
+    <button onclick="addModel('model2.glb')">Agregar Modelo 2</button>
+    <button onclick="addModel('model3.glb')">Agregar Modelo 3</button>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js';
+    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/loaders/GLTFLoader.js';
+    import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/webxr/ARButton.js';
+
+    let camera, scene, renderer, controller;
+    const loader = new GLTFLoader();
+
+    init();
+
+    function init() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera();
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.xr.enabled = true;
+      document.body.appendChild(renderer.domElement);
+
+      document.body.appendChild(ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] }));
+
+      const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+      scene.add(light);
+
+      const hitTestSource = { current: null };
+      const hitTestSourceRequested = { value: false };
+
+      controller = renderer.xr.getController(0);
+      scene.add(controller);
+
+      renderer.setAnimationLoop(function (timestamp, frame) {
+        if (frame) {
+          const referenceSpace = renderer.xr.getReferenceSpace();
+          const session = renderer.xr.getSession();
+
+          if (!hitTestSourceRequested.value) {
+            session.requestReferenceSpace('viewer').then((refSpace) => {
+              session.requestHitTestSource({ space: refSpace }).then((source) => {
+                hitTestSource.current = source;
+              });
+            });
+
+            session.addEventListener('end', () => {
+              hitTestSource.current = null;
+              hitTestSourceRequested.value = false;
+            });
+
+            hitTestSourceRequested.value = true;
+          }
+
+          if (hitTestSource.current) {
+            const hitTestResults = frame.getHitTestResults(hitTestSource.current);
+            if (hitTestResults.length > 0) {
+              const hit = hitTestResults[0];
+              const pose = hit.getPose(referenceSpace);
+              controller.position.set(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z);
+            }
+          }
+        }
+
+        renderer.render(scene, camera);
+      });
+    }
+
+    window.addModel = function(url) {
+      loader.load(url, function (gltf) {
+        const model = gltf.scene;
+        model.position.copy(controller.position);
+        model.scale.set(1, 1, 1);
+        scene.add(model);
+      });
+    };
+  </script>
+</body>
+</html>

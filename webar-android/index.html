@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Visor AR WebXR - Repisa Virtual</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+    <script>
+      AFRAME.registerComponent('boton-agregar-modelo', {
+        schema: { modelo: {type: 'string'} },
+        init: function () {
+          this.el.addEventListener('click', () => {
+            agregarModelo(this.data.modelo);
+          });
+        }
+      });
+
+      function agregarModelo(urlModelo) {
+        const nuevo = document.createElement('a-entity');
+        nuevo.setAttribute('gltf-model', urlModelo);
+        nuevo.setAttribute('position', '0 0 -1');
+        nuevo.setAttribute('scale', '0.3 0.3 0.3');
+        nuevo.setAttribute('animation-mixer', '');
+        document.querySelector('a-scene').appendChild(nuevo);
+      }
+
+      // Cargar modelo automáticamente si viene por URL
+      window.addEventListener('load', () => {
+        const params = new URLSearchParams(window.location.search);
+        const modelo = params.get('modelo');
+        if (modelo) agregarModelo(modelo);
+      });
+    </script>
+    <style>
+      .menu {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(255,255,255,0.8);
+        padding: 0.5rem;
+        border-radius: 10px;
+        z-index: 2;
+      }
+      .menu button {
+        display: block;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="menu">
+      <button boton-agregar-modelo="modelo: model1.glb">Agregar Figura 1</button>
+      <button boton-agregar-modelo="modelo: model2.glb">Agregar Figura 2</button>
+      <button boton-agregar-modelo="modelo: model3.glb">Agregar Figura 3</button>
+    </div>
+
+    <a-scene
+      embedded
+      vr-mode-ui="enabled: false"
+      renderer="antialias: true; alpha: true"
+      arjs="sourceType: webcam; debugUIEnabled: false;">
+
+      <a-entity camera look-controls wasd-controls></a-entity>
+    </a-scene>
+  </body>
+</html>
